@@ -1,6 +1,8 @@
 package com.example.meetingsservice.db.entity;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 
 
@@ -10,14 +12,16 @@ import lombok.Data;
 public class Members {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Member_id")
     private Long memberId;
 
+    @ManyToOne( fetch = FetchType.EAGER)
+    @JoinColumn(name = "Meet_id", nullable = false)
+    @JsonBackReference
+    private Meeting meet;
+
     @Column(name = "User_id")
     private Long userId;
-
-    @Column(name = "Meet_ID")
-    private Long meetId;
 
 }

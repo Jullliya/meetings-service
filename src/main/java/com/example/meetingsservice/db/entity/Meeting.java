@@ -1,13 +1,13 @@
 package com.example.meetingsservice.db.entity;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
-
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
-
+import java.util.List;
 
 @Data
 @Entity
@@ -25,6 +25,9 @@ public class Meeting {
     @Column(name = "Meet_key", unique = true, length = 16)
     private String meetKey;
 
+    @Column(name = "Organizer_Id")
+    private Long orgId;
+
     @Column(name = "Meet_start_date")
     private LocalDate meetStartDate;
 
@@ -36,5 +39,9 @@ public class Meeting {
 
     @Column(name = "Meet_finish_time")
     private LocalTime meetFinishTime;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "meet")
+    @JsonManagedReference
+    private List<Members> members;
 
 }
