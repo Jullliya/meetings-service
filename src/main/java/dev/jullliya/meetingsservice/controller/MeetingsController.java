@@ -1,14 +1,15 @@
-package com.example.meetingsservice.db.controller;
+package dev.jullliya.meetingsservice.controller;
 
-import com.example.meetingsservice.db.CalendarClient;
-import com.example.meetingsservice.db.dto.MeetingsDto;
-import com.example.meetingsservice.db.entity.Meeting;
-import com.example.meetingsservice.db.service.MeetingsService;
+import dev.jullliya.meetingsservice.client.CalendarClient;
+import dev.jullliya.meetingsservice.dto.MeetingsDto;
+import dev.jullliya.meetingsservice.entity.Meeting;
+import dev.jullliya.meetingsservice.myexceptions.CreateMeetingExceptions;
+import dev.jullliya.meetingsservice.service.MeetingsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -16,6 +17,7 @@ import java.util.*;
 public class MeetingsController {
 
     private final MeetingsService meetService;
+
     @Autowired
     private CalendarClient calendarClient;
 
@@ -25,29 +27,42 @@ public class MeetingsController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<?> createMeet(@RequestBody MeetingsDto meetDTO) {
-
-        // Пробую получить ответ по дате старта события, все еще прилетет ошибка 500
-//        Long response = calendarClient.isDayOff(meetDTO.getMeetStartDate().toString()).getBody();
-//        if (response == 1L) meetDTO.setMeetStartDate(meetDTO.getMeetStartDate().plusDays(1));
-
+    public ResponseEntity<?> createMeet(@RequestBody MeetingsDto meetDTO) throws CreateMeetingExceptions{
+        //проверка дня на статус выходного дня
         try {
-            ArrayList<Meeting> meetings = (ArrayList<Meeting>) meetService.getAllMeetings();
+            String response = calendarClient.isDayOff(meetDTO.getMeetStartDate().toString()).getBody();
+            if (response.equals("1")) throw new CreateMeetingExceptions("This day is weekend! Choose another date.");
+        }
+
+        catch (CreateMeetingExceptions e){
+
+            return ResponseEntity.ok(e.getMessage());
+        }
+        //проверка на существование другой встречи в указанное для новой время
+        try {
+            List<Meeting> meetings = meetService.getAllMeetings(meetDTO.getOrgId());
+
+            LocalDateTime StartNewMeet = LocalDateTime.of(meetDTO.getMeetStartDate(), meetDTO.getMeetStartTime());
+            LocalDateTime FinishNewMeet = LocalDateTime.of(meetDTO.getMeetFinishDate(), meetDTO.getMeetFinishTime());
+
             if (meetings.size() > 0) {
                 for (int i = 0; i < meetings.size(); i++) {
-                    if (meetDTO.getOrgId().equals(meetings.get(i).getOrgId()) & (meetDTO.getMeetStartDate().equals(meetings.get(i).getMeetStartDate()) | meetDTO.getMeetFinishDate().equals(meetings.get(i).getMeetFinishDate())
-                            | meetDTO.getMeetStartDate().equals(meetings.get(i).getMeetFinishDate()) | meetDTO.getMeetFinishDate().equals(meetings.get(i).getMeetStartDate()))) {
-                        if ((meetDTO.getMeetStartTime().compareTo(meetings.get(i).getMeetStartTime()) >= 0 & meetDTO.getMeetStartTime().compareTo(meetings.get(i).getMeetFinishTime()) <= 0)
-                                | (meetDTO.getMeetFinishTime().compareTo(meetings.get(i).getMeetStartTime()) >= 0 & meetDTO.getMeetFinishTime().compareTo(meetings.get(i).getMeetFinishTime()) <= 0)) {
-                            throw new Exception();
+
+                    LocalDateTime StartExistMeet = LocalDateTime.of(meetings.get(i).getMeetStartDate(), meetings.get(i).getMeetStartTime()) ;
+                    LocalDateTime FinishExistMeet = LocalDateTime.of(meetings.get(i).getMeetFinishDate(), meetings.get(i).getMeetFinishTime());
+
+                    if ((StartNewMeet.compareTo(StartExistMeet) >= 0 && (StartNewMeet.compareTo(FinishExistMeet) <= 0))
+                            || (FinishNewMeet.compareTo(StartExistMeet) >= 0) && FinishNewMeet.compareTo(FinishExistMeet) <= 0){
+                        {
+                            throw new CreateMeetingExceptions("Meeting on this datetime already exist! Choose another datetime.");
                         }
                     }
                 }
             }
         }
-        catch (Exception e)
+        catch (CreateMeetingExceptions e)
         {
-            return new ResponseEntity<> (HttpStatus.ALREADY_REPORTED);
+            return ResponseEntity.ok(e.getMessage());
         }
         Meeting meet = meetService.createMeet(meetDTO.getMeetName(), meetDTO.getMeetKey(), meetDTO.getOrgId(), meetDTO.getMeetStartDate(), meetDTO.getMeetFinishDate(), meetDTO.getMeetStartTime(), meetDTO.getMeetFinishTime());
         meetDTO.setId(meet.getId());
@@ -74,12 +89,13 @@ public class MeetingsController {
     };
 
     @RequestMapping(value = "all", method = RequestMethod.GET)
-    public ResponseEntity<ArrayList<MeetingsDto>> getAllMeetings(){
-        MeetingsDto meetingsDto = new MeetingsDto();
-        ArrayList<Meeting> meetings = (ArrayList<Meeting>) meetService.getAllMeetings();
-        ArrayList<MeetingsDto> meetingsDtos = new ArrayList<MeetingsDto>();
-        for (int i = 0; i < meetings.size(); i++){
-            meetingsDtos.add(createDto(meetingsDto, meetings.get(i)));
+    public ResponseEntity<List<MeetingsDto>> getAllMeetings(Long id){
+        List<Meeting> meetings = meetService.getAllMeetings(id);
+        List<MeetingsDto> meetingsDtos = new ArrayList<MeetingsDto>();
+        for (Meeting meeting: meetings){
+            MeetingsDto meetingsDto = new MeetingsDto();
+            meetingsDto = createDto(meetingsDto, meeting);
+            meetingsDtos.add(meetingsDto);
         };
         return ResponseEntity.ok(meetingsDtos);
     };
@@ -95,4 +111,5 @@ public class MeetingsController {
         meetingsDto.setMeetFinishTime(meet.getMeetFinishTime());
         return meetingsDto;
     };
+
 }

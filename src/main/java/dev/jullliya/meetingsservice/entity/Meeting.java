@@ -1,4 +1,4 @@
-package com.example.meetingsservice.db.entity;
+package dev.jullliya.meetingsservice.entity;
 
 import javax.persistence.*;
 

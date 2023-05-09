@@ -1,14 +1,12 @@
-package com.example.meetingsservice.db.service.impl;
+package dev.jullliya.meetingsservice.service.impl;
 
-import com.example.meetingsservice.db.dto.MembersDto;
-import com.example.meetingsservice.db.entity.Meeting;
-import com.example.meetingsservice.db.entity.Members;
-import com.example.meetingsservice.db.repository.MembersRepository;
-import com.example.meetingsservice.db.service.MembersService;
+import dev.jullliya.meetingsservice.entity.Meeting;
+import dev.jullliya.meetingsservice.entity.Members;
+import dev.jullliya.meetingsservice.repository.MembersRepository;
+import dev.jullliya.meetingsservice.service.MembersService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -35,7 +33,7 @@ public class MembersServiceImpl implements MembersService {
     }
 
     @Override
-    public List<Members> getAllMembers() { return membersRepository.findAll();}
+    public List<Members> getAllMembers(Long id) { return membersRepository.findAllByUserId(id);}
 
     private Members setData(Members members, Meeting meet, Long userId){
         members.setMeet(meet);

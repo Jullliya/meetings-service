@@ -1,8 +1,8 @@
-package com.example.meetingsservice.db.service.impl;
+package dev.jullliya.meetingsservice.service.impl;
 
-import com.example.meetingsservice.db.entity.Meeting;
-import com.example.meetingsservice.db.repository.MeetingsRepository;
-import com.example.meetingsservice.db.service.MeetingsService;
+import dev.jullliya.meetingsservice.entity.Meeting;
+import dev.jullliya.meetingsservice.repository.MeetingsRepository;
+import dev.jullliya.meetingsservice.service.MeetingsService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -43,7 +43,7 @@ public class MeetingsServiceImpl implements MeetingsService {
     }
 
     @Override
-    public List<Meeting> getAllMeetings() { return meetRepository.findAll();}
+    public List<Meeting> getAllMeetings(Long id) { return meetRepository.findAllByOrgId(id);}
 
     private Meeting setData(Meeting meet, String meetName, String meetKey, Long orgId, LocalDate meetStartDate, LocalDate meetFinishDate, LocalTime meetStartTime, LocalTime meetFinishTime){
         meet.setMeetName(meetName);

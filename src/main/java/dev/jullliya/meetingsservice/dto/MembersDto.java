@@ -1,6 +1,6 @@
-package com.example.meetingsservice.db.dto;
+package dev.jullliya.meetingsservice.dto;
 
-import com.example.meetingsservice.db.entity.Meeting;
+import dev.jullliya.meetingsservice.entity.Meeting;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,5 +11,4 @@ public class MembersDto implements Serializable {
     private Long memberId;
     private Long userId;
     private Meeting meet;
-
 }

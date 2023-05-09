@@ -1,6 +1,6 @@
-package com.example.meetingsservice.db.service;
+package dev.jullliya.meetingsservice.service;
 
-import com.example.meetingsservice.db.entity.Meeting;
+import dev.jullliya.meetingsservice.entity.Meeting;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -16,5 +16,5 @@ public interface MeetingsService {
 
     void deleteMeetById(Long id);
 
-    List<Meeting> getAllMeetings();
+    List<Meeting> getAllMeetings(Long id);
 }

@@ -1,7 +1,7 @@
-package com.example.meetingsservice.db.service;
+package dev.jullliya.meetingsservice.service;
 
-import com.example.meetingsservice.db.entity.Meeting;
-import com.example.meetingsservice.db.entity.Members;
+import dev.jullliya.meetingsservice.entity.Meeting;
+import dev.jullliya.meetingsservice.entity.Members;
 
 import java.util.List;
 
@@ -13,6 +13,6 @@ public interface MembersService {
 
     Members getMemberById(Long id);
 
-    List<Members> getAllMembers();
+    List<Members> getAllMembers(Long id);
 
 }

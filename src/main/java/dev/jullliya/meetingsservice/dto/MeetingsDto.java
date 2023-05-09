@@ -1,6 +1,7 @@
-package com.example.meetingsservice.db.dto;
+package dev.jullliya.meetingsservice.dto;
 
-import com.example.meetingsservice.db.entity.Members;
+import dev.jullliya.meetingsservice.entity.Meeting;
+import dev.jullliya.meetingsservice.entity.Members;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -19,4 +20,5 @@ public class MeetingsDto {
     private LocalTime meetStartTime;
     private LocalTime meetFinishTime;
     private List<Members> members;
+
 }
